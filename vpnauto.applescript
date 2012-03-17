@@ -131,6 +131,7 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
 				connect service theConnection
 			end tell
 		end tell
+		delay 1.2
 		
 		repeat 5 times
 			set winNum to find_window_by_static_text(theApp, theText)
@@ -154,7 +155,7 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
 					end if
 				end tell
 			end if
-			
+			delay 1
 		end repeat
 	end repeat
 end vpn_connect
