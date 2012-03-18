@@ -131,7 +131,9 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
 				connect service theConnection
 			end tell
 		end tell
-		delay 1.2
+		delay 0.5
+		
+		set authed to 0
 		
 		repeat 5 times
 			set winNum to find_window_by_static_text(theApp, theText)
@@ -144,8 +146,14 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
 				tell application "System Events"
 					perform action "AXRaise" of item winNum of (get every window of application process theApp)
 					if resultWindow is "authWindow" then
-						keystroke theToken
-						key code 36
+						if authed is 0 then
+							set authed to 1
+							keystroke theToken
+							key code 36
+						else
+							key code 53
+							exit repeat
+						end if
 					else if resultWindow is "welcomeWindow" then
 						key code 36
 						return
@@ -155,8 +163,9 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
 					end if
 				end tell
 			end if
-			delay 1
+			delay 0.2
 		end repeat
+		
 	end repeat
 end vpn_connect
 
