@@ -28,7 +28,7 @@ If you found any bugs, file a report here.
 
 
 ## Credits
-@nicoster
+@nicoster @coreygilmore
 
 ##License
 (The MIT License)
