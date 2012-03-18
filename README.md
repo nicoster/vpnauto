@@ -19,6 +19,8 @@ You might need connect ADSL before you connect the VPN. If it is the case, modif
 
 You could get the 'VPN Connection Name' or 'ADSL Connection Name' from the 'System Preferences'/Network panel.
 
+![System Preferences:Network](http://nick.luckygarden.org/wp-content/uploads/2012/03/Screen-Shot-2012-03-17-at-11.22.30-PM.png)
+
 ## Bug Report
 If you found any bugs, file a report here.
 
