@@ -8,13 +8,13 @@
 set theConnection to "ShangHai"
 set thePin to "" -- set to "" to prompt every time (recommended)
 
-
+set theADSL to "ADSL" -- if theADSL is not null, will try to connect ADSL first
 set theApp to "UserNotificationCenter" -- shouldn't have to change this
 set theText to "VPN Connection" -- static text to search for in the VPN dialog, likely locale specific
 set tokenAppName to "SofToken II" -- The name (sans .app) of the SecurID application, possibly locale specific
 
 -- Generate your passcode and open the VPN connection
-vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
+vpn_connect(thePin, theConnection, theApp, theText, tokenAppName, theADSL)
 
 --------------------------------------
 -- Helper functions below
@@ -73,7 +73,7 @@ end get_token
 -- Find a window containing specific static text, in a given application
 on find_window_by_static_text(appname, staticText)
 	repeat with x from 1 to 100
-		log "vc loop " & x
+		log "waiting " & x
 		delay 0.6
 		tell application "System Events"
 			set allApps to (get name of every application process) -- get all apps
@@ -111,9 +111,57 @@ on test_window(winNum, appname)
 	end tell
 end test_window
 
+on is_connected(servicename)
+	try
+		tell application "System Events"
+			tell current location of network preferences
+				if connected of current configuration of service servicename then
+					return true
+				end if
+			end tell
+		end tell
+	end try
+	return false
+end is_connected
+
+on connect_adsl(adsl)
+	try
+		if adsl is not null and adsl is not "" then
+			tell application "System Events"
+				tell current location of network preferences
+					set ADSLService to service adsl
+					set isConnected to connected of current configuration of ADSLService
+					if not isConnected then
+						connect ADSLService
+					end if
+					repeat 40 times
+						delay 0.5
+						if connected of current configuration of ADSLService then
+							return true
+						end if
+					end repeat
+				end tell
+			end tell
+			return false
+		else
+			return true
+		end if
+	end try
+	return true
+end connect_adsl
+
 -- the actual connection - retrieve the token, initiate the connection and enter the password
-on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName)
-	repeat 2 times
+on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName, adsl)
+	if not connect_adsl(adsl) then
+		display alert "Abort. Unable to connect " & adsl
+		return
+	end if
+	
+	if is_connected(theConnection) then
+		return
+	end if
+	
+	repeat 3 times
 		
 		set thePin to get_user_pin(thePin)
 		if thePin is false then
