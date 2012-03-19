@@ -59,7 +59,13 @@ on get_token(userPin, tokenAppName)
 			delay 0.2
 			keystroke userPin
 			key code 36
-			copy (get the clipboard as string) to theToken
+			repeat 5 times
+				delay 0.3
+				copy (get the clipboard as string) to theToken
+				if theToken is not origClip and the length of theToken is 8 then
+					exit repeat
+				end if
+			end repeat
 			set the clipboard to origClip
 		end tell
 	end tell
