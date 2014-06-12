@@ -5,7 +5,7 @@
 -- Last Modified By nicoster at gmail.com: 2012-03-17
 ------------------------------------------------
 
-set theVPNConnection to "SH"	-- the VPN Connection name
+set theVPNConnection to "SH" -- the VPN Connection name
 set thePin to "" -- set to "" to prompt every time (recommended)
 
 set theADSL to "" -- if theADSL is not null, will try to connect ADSL first
@@ -29,7 +29,7 @@ end get_token
 on get_user_pin(thePin)
 	if thePin is not null and thePin is not "" then return thePin
 	
-	set dialogResult to display dialog "Enter your PIN:" default answer "" with title "PIN" with hidden answer
+	set dialogResult to display dialog "Enter your SofToken II - PIN:" default answer "" with title "SofToken II - PIN" with hidden answer
 	
 	if button returned of dialogResult is "OK" then
 		set thePin to text returned of dialogResult
@@ -37,7 +37,7 @@ on get_user_pin(thePin)
 			return false
 		end if
 	end if
-	return thePin	
+	return thePin
 end get_user_pin
 
 -- Find a window containing specific static text, in a given application
