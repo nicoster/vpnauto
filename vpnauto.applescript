@@ -5,20 +5,25 @@
 -- Last Modified By nicoster at gmail.com: 2012-03-17
 ------------------------------------------------
 
-set theConnection to "ShangHai"
+set theVPNConnection to "SH"	-- the VPN Connection name
 set thePin to "" -- set to "" to prompt every time (recommended)
 
-set theADSL to "ADSL" -- if theADSL is not null, will try to connect ADSL first
+set theADSL to "" -- if theADSL is not null, will try to connect ADSL first
 set theApp to "UserNotificationCenter" -- shouldn't have to change this
 set theText to "VPN Connection" -- static text to search for in the VPN dialog, likely locale specific
-set tokenAppName to "SofToken II" -- The name (sans .app) of the SecurID application, possibly locale specific
 
 -- Generate your passcode and open the VPN connection
-vpn_connect(thePin, theConnection, theApp, theText, tokenAppName, theADSL)
+vpn_connect(thePin, theVPNConnection, theApp, theText, theADSL)
 
 --------------------------------------
 -- Helper functions below
 --------------------------------------
+
+-- assume that the SofToken app is located in /Applications/SofToken II.app
+on get_token(userPin)
+	set token to do shell script "bash -c 'echo " & userPin & "|/Applications/SofToken\\ II.app/Contents/Resources/st-wrap.sh -s -p'"
+	return token
+end get_token
 
 -- helper method to retrieve the user's PIN if it's not stored
 on get_user_pin(thePin)
@@ -32,49 +37,8 @@ on get_user_pin(thePin)
 			return false
 		end if
 	end if
-	
-	
-	return thePin
-	
+	return thePin	
 end get_user_pin
-
-
--- launch the SecurID application and retrieve the current token
-on get_token(userPin, tokenAppName)
-	set theToken to null
-	
-	-- quit the app if it's running
-	tell application "System Events" to set allApps to (get name of every application process)
-	
-	if allApps contains tokenAppName then
-		tell application tokenAppName to quit
-		log "telling " & tokenAppName & " to quit"
-		delay 0.5 -- arbitrary delay, give the app time to exit
-	end if
-	
-	tell application tokenAppName
-		activate
-		copy (get the clipboard) to origClip
-		tell application "System Events"
-			delay 0.2
-			keystroke userPin
-			key code 36
-			repeat 5 times
-				delay 0.3
-				copy (get the clipboard as string) to theToken
-				if theToken is not origClip and the length of theToken is 8 then
-					exit repeat
-				end if
-			end repeat
-			set the clipboard to origClip
-		end tell
-	end tell
-	log "tell quit"
-	tell application tokenAppName to quit
-	log "after quit"
-	return (theToken as string) -- return the token we retrieved
-end get_token
-
 
 -- Find a window containing specific static text, in a given application
 on find_window_by_static_text(appname, staticText)
@@ -157,13 +121,13 @@ on connect_adsl(adsl)
 end connect_adsl
 
 -- the actual connection - retrieve the token, initiate the connection and enter the password
-on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName, adsl)
+on vpn_connect(thePin, theVPNConnection, theApp, theText, adsl)
 	if not connect_adsl(adsl) then
 		display alert "Abort. Unable to connect " & adsl
 		return
 	end if
 	
-	if is_connected(theConnection) then
+	if is_connected(theVPNConnection) then
 		return
 	end if
 	
@@ -177,12 +141,17 @@ on vpn_connect(thePin, theConnection, theApp, theText, tokenAppName, adsl)
 		--display alert "PIN: " & thePin
 		--return
 		
-		set theToken to get_token(thePin, tokenAppName)
+		set theToken to get_token(thePin)
 		log "gettoken returned: " & theToken
+		
+		if the length of theToken is not 8 then
+			log "wrong pin?"
+			return
+		end if
 		
 		tell application "System Events"
 			tell network preferences
-				connect service theConnection
+				connect service theVPNConnection
 			end tell
 		end tell
 		delay 0.5
