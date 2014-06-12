@@ -2,7 +2,6 @@
 -- Automated token generation and VPN logins
 -- Copyright 2010, Corey Gilmore
 -- http://coreygilmore.com/
--- Last Modified By nicoster at gmail.com: 2012-03-17
 ------------------------------------------------
 
 set theVPNConnection to "SH" -- the VPN Connection name
